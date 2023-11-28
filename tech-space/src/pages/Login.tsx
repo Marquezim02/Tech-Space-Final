@@ -1,10 +1,17 @@
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword } from 'firebase/auth'
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "../firebase/firebaseConection";
+import { toast } from "react-toastify";
+import "react-toastify/ReactToastify.css";
 import loginImg from "../assets/daniel-korpai-HyTwtsk8XqA-unsplash.jpg";
 
 function Login() {
   const [displayLogin, setDisplayLogin] = useState(true);
   const [displaySignUp, setDisplaySignUp] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [loginPasswordInput, setLoginPasswordInput] = useState("");
   const [loginEmailInput, setLoginEmailInput] = useState("");
   const [isLoginFormValid, setIsLoginFormValid] = useState(true);
@@ -21,19 +28,19 @@ function Login() {
   const handleDisplayCreateAccount = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    setDisplayLogin(false)
-    setDisplaySignUp(true)
+    setDisplayLogin(false);
+    setDisplaySignUp(true);
   };
 
   const handleDisplayLogin = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    setDisplayLogin(true)
-    setDisplaySignUp(false)
+    setDisplayLogin(true);
+    setDisplaySignUp(false);
   };
 
   const handleInputForm = (
@@ -46,35 +53,75 @@ function Login() {
     eventValue && state(eventValue);
   };
 
-  const handleExecuteLogin = (
+  const handleExecuteLogin = async (
     event: React.MouseEvent<HTMLFormElement, MouseEvent>
   ) => {
-    event.preventDefault()
+    setIsLoading(true);
+    event.preventDefault();
 
     loginEmailInput.trim().length > 0 && loginPasswordInput.trim().length > 0
       ? setIsLoginFormValid(true)
-      : setIsLoginFormValid(false)
+      : setIsLoginFormValid(false);
 
-    setLoginEmailInput("")
-    setLoginPasswordInput("")
+    await signInWithEmailAndPassword(auth, loginEmailInput, loginPasswordInput)
+      .then(() => {
+        toast.success("Bem vindo de volta");
+        setDisplayLogin(true);
+        setDisplaySignUp(false);
+        setIsLoading(false);
+      })
+      .catch((err: { code: string }) => {
+        setIsLoading(false);
+        if (err.code === "auth/wrong-password") {
+          toast.error("Senha incorreta!");
+        } else if (err.code === "auth/user-not-found") {
+          toast.error("Email não existe, crie sua conta!");
+        } else {
+          toast.error("Erro ao fazer login!");
+          setIsLoginFormValid(false);
+        }
+      });
+
+    setLoginEmailInput("");
+    setLoginPasswordInput("");
   };
 
-  const handleExecuteSignUp = (
+  const handleExecuteSignUp = async (
     event: React.MouseEvent<HTMLFormElement, MouseEvent>
   ) => {
+    setIsLoading(true);
     event.preventDefault();
 
     signUpEmailInput.trim().length > 0 && signUpPasswordInput.trim().length > 0
       ? setIsSignUpFormValid(true)
-      : setIsSignUpFormValid(false)
+      : setIsSignUpFormValid(false);
 
-    console.log("DADOS DO INPUT - SIGNUP", {
-      email: signUpEmailInput,
-      password: signUpPasswordInput,
-    })
+    await createUserWithEmailAndPassword(
+      auth,
+      signUpEmailInput,
+      signUpPasswordInput
+    )
+      .then(() => {
+        setDisplayLogin(true);
+        setDisplaySignUp(false);
+        setIsLoading(false);
+        toast.success("Usuário criado com sucesso!");
+      })
+      .catch((err: { code: string }) => {
+        if (err.code === "auth/weak-password") {
+          toast.error("Senha muito fraca, utilize outra senha!");
+        } else if (err.code === "auth/email-already-in-use") {
+          toast.error("Email já cadastrado!");
+        } else {
+          toast.error("Erro ao criar usuário!");
+        }
 
-    setSignUpEmailInput("")
-    setSignUpPasswordInput("")
+        setIsLoading(false);
+        setIsSignUpFormValid(false);
+      });
+
+    setSignUpEmailInput("");
+    setSignUpPasswordInput("");
   };
 
   return (
@@ -143,10 +190,11 @@ function Login() {
             </div>
             {!isLoginFormValid && erroAlert}
             <button
+              disabled={isLoading}
               type="submit"
               className="w-full my-5 py-2 bg-orange-500 shadow-lg enabled:hover:shadow-orange-500/40 text-white font-semibold disabled:bg-orange-400 disable:shadow-none enabled:shadow-orange-500/50"
             >
-              Fazer Login
+              {isLoading ? "Carregando..." : "Fazer Login"}
             </button>
           </form>
         )}
@@ -200,16 +248,17 @@ function Login() {
             </div>
             {!isSignUpFormValid && erroAlert}
             <button
+              disabled={isLoading}
               type="submit"
               className="w-full my-5 py-2 bg-orange-500 shadow-lg enabled:hover:shadow-orange-500/40 text-white font-semibold rounded-lg disabled:bg-orange-400 disabled:shadow-none enabled:shadow-orange-500/50"
             >
-              Criar conta
+              {isLoading ? "Carregando..." : "Criar conta"}
             </button>
           </form>
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default Login
+export default Login;
