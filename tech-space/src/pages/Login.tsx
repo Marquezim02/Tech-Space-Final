@@ -192,7 +192,7 @@ function Login() {
             <button
               disabled={isLoading}
               type="submit"
-              className="w-full my-5 py-2 bg-orange-500 shadow-lg enabled:hover:shadow-orange-500/40 text-white font-semibold disabled:bg-orange-400 disable:shadow-none enabled:shadow-orange-500/50"
+              className="w-full my-5 py-2 bg-orange-500 shadow-lg enabled:hover:shadow-orange-500/40 text-white font-semibold rounded-lg disabled:bg-orange-400 disable:shadow-none enabled:shadow-orange-500/50"
             >
               {isLoading ? "Carregando..." : "Fazer Login"}
             </button>
