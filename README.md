@@ -7,7 +7,7 @@ Outras tecnologias:
 - Styled-Components
 - Vite
 - Firebase
-- Typescrip
+- Typescript
 - Hooks do React
 - React Router
 - Context API
