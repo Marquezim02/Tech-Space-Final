@@ -2,7 +2,7 @@
 
 Projeto final da disciplina de Programação ll utilizando ReactJs.
 
-Outras tecnologias: 
+#STUFFY Outras tecnologias: 
 - TailwindCss
 - Styled-Components
 - Vite
@@ -12,7 +12,7 @@ Outras tecnologias:
 - React Router
 - Context API
 
-Como acessar?
+#STUFFY Como acessar?
 - Primeiramente cd tech-space
 - npm i ou npm install
 - npm run dev -- --host
